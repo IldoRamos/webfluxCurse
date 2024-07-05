@@ -11,8 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class User {
     @Id
-    private int id;
-    private String name;
+    private String id;
+    private String nome;
     @Indexed(unique = true)
     private String email;
     private String password;

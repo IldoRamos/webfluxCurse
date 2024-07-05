@@ -1,6 +1,8 @@
 package br.com.ramos.webfluxcurse.controller;
 
 import br.com.ramos.webfluxcurse.entity.User;
+import br.com.ramos.webfluxcurse.model.request.UserRequest;
+import br.com.ramos.webfluxcurse.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
