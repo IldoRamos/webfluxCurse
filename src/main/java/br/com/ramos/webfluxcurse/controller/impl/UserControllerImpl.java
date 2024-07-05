@@ -4,7 +4,9 @@ import br.com.ramos.webfluxcurse.controller.UserController;
 import br.com.ramos.webfluxcurse.model.request.UserRequest;
 import br.com.ramos.webfluxcurse.model.response.UserResponse;
 import br.com.ramos.webfluxcurse.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +20,7 @@ import reactor.core.publisher.Mono;
 public class UserControllerImpl implements UserController {
     private final UserService userService;
     @Override
-    public ResponseEntity<Mono<Void>> save(UserRequest user) {
+    public ResponseEntity<Mono<Void>> save(@Valid UserRequest user) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.save(user).then());
     }
