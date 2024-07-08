@@ -4,10 +4,10 @@ import br.com.ramos.webfluxcurse.entity.User;
 import br.com.ramos.webfluxcurse.mapper.UserMapper;
 import br.com.ramos.webfluxcurse.model.request.UserRequest;
 import br.com.ramos.webfluxcurse.repository.UserRepository;
-import com.mongodb.internal.authentication.AwsCredentialHelper;
+import br.com.ramos.webfluxcurse.service.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.control.MappingControl;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,8 +16,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Objects;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -102,6 +102,18 @@ class UserServiceTest {
                 .verify();
 
         Mockito.verify(userRepository,times(1)).findAndRemove(anyString());
+    }
+
+    @Test void testHandlerNotFound(){
+        when(userRepository.findById(anyString())).thenReturn(Mono.empty());
+        try {
+            userService.findById("123").block();
+        }catch (Exception ex){
+            assertEquals(ObjectNotFoundException.class,ex.getClass());
+
+            assertEquals(format("Object not found. Id: %s, Type: %s","123", User.class.getSimpleName())
+                    ,ex.getMessage());
+        }
     }
 
 }
