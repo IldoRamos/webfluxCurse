@@ -6,7 +6,9 @@ import br.com.ramos.webfluxcurse.model.request.UserRequest;
 import br.com.ramos.webfluxcurse.repository.UserRepository;
 import br.com.ramos.webfluxcurse.service.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static java.lang.String.format;
@@ -25,6 +27,11 @@ public class UserService {
                 .switchIfEmpty(Mono.error(
                         new ObjectNotFoundException("" +
                                 format("Object not found. Id: %s, Type: %s",id, User.class))
+
                 ));
+    }
+
+    public Flux<User> findAll(){
+        return  repository.findAll();
     }
 }
