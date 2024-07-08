@@ -1,6 +1,7 @@
 package br.com.ramos.webfluxcurse.controller.impl;
 
 import br.com.ramos.webfluxcurse.controller.UserController;
+import br.com.ramos.webfluxcurse.mapper.UserMapper;
 import br.com.ramos.webfluxcurse.model.request.UserRequest;
 import br.com.ramos.webfluxcurse.model.response.UserResponse;
 import br.com.ramos.webfluxcurse.service.UserService;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = "/{users}")
 public class UserControllerImpl implements UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
     @Override
     public ResponseEntity<Mono<Void>> save(@Valid UserRequest user) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -26,8 +28,12 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<Mono<UserResponse>> find(String id) {
-        return null;
+    public ResponseEntity<Mono<UserResponse>> findById(String id) {
+
+        return ResponseEntity.ok().body(
+                userService.findById(id)
+                        .map(userMapper::toRespose)
+        );
     }
 
     @Override
