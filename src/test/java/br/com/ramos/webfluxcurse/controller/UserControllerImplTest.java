@@ -3,6 +3,7 @@ package br.com.ramos.webfluxcurse.controller;
 import br.com.ramos.webfluxcurse.entity.User;
 import br.com.ramos.webfluxcurse.mapper.UserMapper;
 import br.com.ramos.webfluxcurse.model.request.UserRequest;
+import br.com.ramos.webfluxcurse.model.response.UserResponse;
 import br.com.ramos.webfluxcurse.service.UserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import org.assertj.core.api.junit.jupiter.SoftlyExtension;
@@ -26,8 +27,7 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
@@ -54,6 +54,7 @@ class UserControllerImplTest {
     private WebTestClient webTestClient;
 
 
+    private static final String NOME = "ildo", ID ="123", EMAIL="ildo@gmail.com", SENHA = "123";
     @BeforeEach
     void setUp() {
     }
@@ -94,8 +95,21 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findById() {
+    @DisplayName("Test find by id endpoint with success")
+    void testeFindByIdSuccess() {
+        final var userResponse = new UserResponse(ID, NOME,EMAIL,SENHA);
+        when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toRespose(any(User.class))).thenReturn(userResponse);
 
+        webTestClient.get().uri("/users/"+ID)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.nome").isEqualTo(NOME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(SENHA);
     }
 
     @Test
