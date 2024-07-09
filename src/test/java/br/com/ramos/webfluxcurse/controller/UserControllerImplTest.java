@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 import static reactor.core.publisher.Mono.just;
@@ -63,7 +64,7 @@ class UserControllerImplTest {
     @Test
     @DisplayName("Test endpoint save with success")
     void testSaveWithSuccess() {
-        UserRequest request = new UserRequest("Ildo", "ildo@gmail.com","123");
+        UserRequest request = new UserRequest(NOME, EMAIL,SENHA);
         Mockito.when(service.save(any())).thenReturn(just(User.builder().build()));
 
         webTestClient.post().uri("/users")
@@ -129,13 +130,37 @@ class UserControllerImplTest {
                 .jsonPath("$.[0].nome").isEqualTo(NOME)
                 .jsonPath("$.[0].email").isEqualTo(EMAIL)
                 .jsonPath("$.[0].password").isEqualTo(SENHA);
+
+        verify(service).findAll();
+        verify(mapper).toRespose(any(User.class));
     }
 
     @Test
+    @DisplayName("Test Update endpoint with success")
     void update() {
+        UserRequest request = new UserRequest(NOME, EMAIL,SENHA);
+        final var userResponse = new UserResponse(ID, NOME,EMAIL,SENHA);
+
+        Mockito.when(service.update(anyString(),any(UserRequest.class))).thenReturn(just(User.builder().build()));
+        when(mapper.toRespose(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.patch().uri("/users/"+ID)
+                .contentType(APPLICATION_JSON)
+                .body(fromValue(request))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.nome").isEqualTo(NOME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(SENHA);;
+
+                verify(service).update(anyString(),any(UserRequest.class));
+                verify(mapper).toRespose(any(User.class));
     }
 
     @Test
     void delete() {
+
     }
 }
