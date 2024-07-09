@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 import static reactor.core.publisher.Mono.just;
@@ -41,8 +42,9 @@ class UserControllerImplTest {
     private WebTestClient client;
     @MockBean
     private UserService Service;
+
     @MockBean
-    private UserMapper Mapper;
+    private UserMapper mapper;
 
     @MockBean
     private MongoClient mongoClient;
@@ -72,7 +74,28 @@ class UserControllerImplTest {
     }
 
     @Test
+    @DisplayName("Test endpoint save with bad request")
+    void testSaveWithBadRequest() {
+        UserRequest request = new UserRequest(" Ildo", "ildo@gmail.com","123");
+
+        webTestClient.post().uri("/users")
+                .contentType(APPLICATION_JSON)
+                .body(fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation Error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.erros[0].fieldName").isEqualTo("nome")
+                .jsonPath("$.erros[0].message").isEqualTo("field connot have blank spaces at the beginning or end");
+    }
+
+    @Test
     void findById() {
+
     }
 
     @Test
