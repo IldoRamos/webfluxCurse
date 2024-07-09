@@ -112,6 +112,9 @@ class UserControllerImplTest {
                 .jsonPath("$.nome").isEqualTo(NOME)
                 .jsonPath("$.email").isEqualTo(EMAIL)
                 .jsonPath("$.password").isEqualTo(SENHA);
+
+        verify(service).findById(anyString());
+        verify(mapper).toRespose(any(User.class));
     }
 
     @Test
@@ -141,7 +144,7 @@ class UserControllerImplTest {
         UserRequest request = new UserRequest(NOME, EMAIL,SENHA);
         final var userResponse = new UserResponse(ID, NOME,EMAIL,SENHA);
 
-        Mockito.when(service.update(anyString(),any(UserRequest.class))).thenReturn(just(User.builder().build()));
+        when(service.update(anyString(),any(UserRequest.class))).thenReturn(just(User.builder().build()));
         when(mapper.toRespose(any(User.class))).thenReturn(userResponse);
 
         webTestClient.patch().uri("/users/"+ID)
@@ -160,7 +163,13 @@ class UserControllerImplTest {
     }
 
     @Test
+    @DisplayName("Test detele endpoint with success")
     void delete() {
+        when(service.delete(anyString())).thenReturn(just(User.builder().build()));
+        webTestClient.delete().uri("/users/"+ID)
+                .exchange()
+                .expectStatus().isOk();
 
+        verify(service).delete(anyString());
     }
 }
