@@ -23,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,7 +78,7 @@ class UserControllerImplTest {
     @Test
     @DisplayName("Test endpoint save with bad request")
     void testSaveWithBadRequest() {
-        UserRequest request = new UserRequest(" Ildo", "ildo@gmail.com","123");
+        UserRequest request = new UserRequest(NOME.concat(" "), EMAIL,SENHA);
 
         webTestClient.post().uri("/users")
                 .contentType(APPLICATION_JSON)
@@ -113,7 +114,21 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findAll() {
+    @DisplayName("Test find all endpoint with success")
+    void testFindAllWithSuccess() {
+        final var userResponse = new UserResponse(ID, NOME,EMAIL,SENHA);
+        when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
+        when(mapper.toRespose(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.get().uri("/users")
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].id").isEqualTo(ID)
+                .jsonPath("$.[0].nome").isEqualTo(NOME)
+                .jsonPath("$.[0].email").isEqualTo(EMAIL)
+                .jsonPath("$.[0].password").isEqualTo(SENHA);
     }
 
     @Test
